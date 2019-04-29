@@ -60,14 +60,6 @@ const distinct_cmap = [ 0, 1, 984, 987, 989, 983, 994, 988 ]
   repmat(A::AbstractArray, m::Int, n::Int) = repeat(A::AbstractArray, m::Int, n::Int)
 end
 
-function _min(a)
-  minimum(filter(!isnan, a))
-end
-
-function _max(a)
-  maximum(filter(!isnan, a))
-end
-
 mutable struct PlotObject
   obj
   args
@@ -774,8 +766,8 @@ function plot_img(I)
         width, height, data = GR.readimage(I)
     else
         width, height = size(I)
-        minI = _min(I)
-        maxI = _max(I)
+        minI = minimum(I)
+        maxI = maximum(I)
         data = float(I) .- minI
         if minI != maxI
             data ./= maxI .- minI
@@ -841,9 +833,9 @@ function plot_iso(V)
     end
 
     GR.selntran(0)
-    values = round.(UInt16, (V .- _min(V)) ./ (_max(V) .- _min(V)) .* (2^16-1))
+    values = round.(UInt16, (V .- minimum(V)) ./ (maximum(V) .- minimum(V)) .* (2^16-1))
     nx, ny, nz = size(V)
-    isovalue = (get(plt.kvs, :isovalue, 0.5) - _min(V)) / (_max(V) - _min(V))
+    isovalue = (get(plt.kvs, :isovalue, 0.5) - minimum(V)) / (maximum(V) - minimum(V))
     rotation = get(plt.kvs, :rotation, 40) * π / 180.0
     tilt = get(plt.kvs, :tilt, 70) * π / 180.0
     r = 2.5
@@ -1055,7 +1047,7 @@ function plot_data(flag=true)
             GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
             if given(z) || given(c)
                 if given(c)
-                    c = (c .- _min(c)) ./ (_max(c) .- _min(c))
+                    c = (c .- minimum(c)) ./ (maximum(c) .- minimum(c))
                     cind = Int[round(Int, 1000 + _i * 255) for _i in c]
                 end
                 for i in 1:length(x)
@@ -1104,7 +1096,7 @@ function plot_data(flag=true)
             zmin, zmax = plt.kvs[:zrange]
             if length(x) == length(y) == length(z)
                 x, y, z = GR.gridit(x, y, z, 200, 200)
-                zmin, zmax = get(plt.kvs, :zlim, (_min(z), _max(z)))
+                zmin, zmax = get(plt.kvs, :zlim, (minimum(z), maximum(z)))
             end
             GR.setspace(zmin, zmax, 0, 90)
             levels = get(plt.kvs, :levels, 0)
@@ -1121,7 +1113,7 @@ function plot_data(flag=true)
             zmin, zmax = plt.kvs[:zrange]
             if length(x) == length(y) == length(z)
                 x, y, z = GR.gridit(x, y, z, 200, 200)
-                zmin, zmax = get(plt.kvs, :zlim, (_min(z), _max(z)))
+                zmin, zmax = get(plt.kvs, :zlim, (minimum(z), maximum(z)))
             end
             GR.setspace(zmin, zmax, 0, 90)
             levels = get(plt.kvs, :levels, 0)
@@ -1144,7 +1136,7 @@ function plot_data(flag=true)
         elseif kind == :heatmap
             w, h = size(z)
             cmap = colormap()
-            data = (float(z) .- _min(z)) ./ (_max(z) .- _min(z))
+            data = (float(z) .- minimum(z)) ./ (maximum(z) .- minimum(z))
             if get(plt.kvs, :xflip, false)
                 data = reverse(data, dims=1)
             end
@@ -1186,7 +1178,7 @@ function plot_data(flag=true)
         elseif kind == :scatter3
             GR.setmarkertype(GR.MARKERTYPE_SOLID_CIRCLE)
             if given(c)
-                c = (c .- _min(c)) ./ (_max(c) .- _min(c))
+                c = (c .- minimum(c)) ./ (maximum(c) .- minimum(c))
                 cind = Int[round(Int, 1000 + _i * 255) for _i in c]
                 for i in 1:length(x)
                     GR.setmarkercolorind(cind[i])
@@ -1345,13 +1337,13 @@ function plot_args(args; fmt=:xys)
 
         isvector(x) && (x = vec(x))
 
-        if isa(y, Function)
+        if typeof(y) == Function
             y = [y(a) for a in x]
         else
             isvector(y) && (y = vec(y))
         end
         if given(z)
-            if fmt == :xyzc && isa(z, Function)
+            if fmt == :xyzc && typeof(z) == Function
                 z = [z(a,b) for a in x, b in y]
             else
                 isvector(z) && (z = vec(z))
@@ -1451,7 +1443,7 @@ This function can receive one or more of the following:
     julia> # Draw the first plot
     julia> plot(x, y)
     julia> # Plot graph over it
-    julia> oplot(x, x -> x^3 + x^2 + x)
+    julia> oplot(x, x.^3 .+ x.^2 .+ x)
 """
 function oplot(args::PlotArg...; kv...)
     create_context(:line, Dict(kv))
@@ -1482,7 +1474,7 @@ This function can receive one or more of the following:
     julia> # Plot x and y
     julia> step(x, y)
     julia> # Plot x and a callable
-    julia> step(x, x -> x^3 + x^2 + x)
+    julia> step(x, x -> x .^ 3 .+ x .^ 2 .+ x)
     julia> # Plot y, using its indices for the x values
     julia> step(y)
     julia> # Use next y step directly after x each position
@@ -1526,7 +1518,7 @@ current colormap.
     julia> # Plot x and y
     julia> scatter(x, y)
     julia> # Plot x and a callable
-    julia> scatter(x, x -> 0.2 * x + 0.4)
+    julia> scatter(x, 0.2 .* x .+ 0.4)
     julia> # Plot y, using its indices for the x values
     julia> scatter(y)
     julia> # Plot a diagonal with increasing size and color
@@ -1565,7 +1557,7 @@ This function can receive one or more of the following:
     julia> # Plot x and y
     julia> stem(x, y)
     julia> # Plot x and a callable
-    julia> stem(x, x -> x^3 + x^2 + x + 6)
+    julia> stem(x, x.^3 .+ x.^2 .+ x .+ 6)
     julia> # Plot y, using its indices for the x values
     julia> stem(y)
 """
@@ -1689,7 +1681,7 @@ provided points, a value of 0 will be used.
     julia> # Draw the contour plot
     julia> contour(x, y, z)
     julia> # Draw the contour plot using a callable
-    julia> contour(x, y, (x,y) -> sin(x) + cos(y))
+    julia> contour(x, y, sin.(x) .+ cos.(y))
 """
 function contour(args...; kv...)
     create_context(:contour, Dict(kv))
@@ -1734,7 +1726,7 @@ provided points, a value of 0 will be used.
     julia> # Draw the contour plot
     julia> contourf(x, y, z)
     julia> # Draw the contour plot using a callable
-    julia> contourf(x, y, (x,y) -> sin(x) + cos(y))
+    julia> contourf(x, y, sin.(x) .+ cos.(y))
 """
 function contourf(args...; kv...)
     create_context(:contourf, Dict(kv))
@@ -1853,7 +1845,7 @@ provided points, a value of 0 will be used.
     julia> # Draw the wireframe plot
     julia> wireframe(x, y, z)
     julia> # Draw the wireframe plot using a callable
-    julia> wireframe(x, y, (x,y) -> sin(x) + cos(y))
+    julia> wireframe(x, y, sin.(x) .+ cos.(y))
 """
 function wireframe(args...; kv...)
     create_context(:wireframe, Dict(kv))
@@ -1898,7 +1890,7 @@ provided points, a value of 0 will be used.
     julia> # Draw the surface plot
     julia> surface(x, y, z)
     julia> # Draw the surface plot using a callable
-    julia> surface(x, y, (x,y) -> sin(x) + cos(y))
+    julia> surface(x, y, sin.(x) .+ cos.(y))
 """
 function surface(args...; kv...)
     create_context(:surface, Dict(kv))
@@ -2269,7 +2261,7 @@ This function can receive one or more of the following:
     julia> # Plot angles and radii
     julia> polar(angles, radii)
     julia> # Plot angles and a callable
-    julia> polar(angles, r -> cos(r) ^ 2)
+    julia> polar(angles, cos.(radii) .^ 2)
 """
 function polar(args...; kv...)
     create_context(:polar, Dict(kv))

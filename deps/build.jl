@@ -1,3 +1,4 @@
+using BinaryProvider
 @static if !isdefined(Base, Symbol("@info"))
     macro info(msg)
         return :(info($(esc(msg))))
@@ -92,19 +93,14 @@ if !check_grdir()
   mkpath("downloads")
   file = "downloads/$tarball"
   try
-    url = "github.com/sciapp/gr/releases/download/v$version/$tarball"
-    download("https://$url", file)
+    url = ENV["JULIA_PKG_SERVER"] * "/binary/gr/v0.39.0/$tarball"
+    BinaryProvider.download(url,file)
   catch
     url = "gr-framework.org/downloads/$tarball"
     try
       download("https://$url", file)
     catch
-      @info("Using insecure connection")
-      try
-        download("http://$url", file)
-      catch
         @info("Cannot download GR run-time")
-      end
     end
   end
   if os == :Windows
