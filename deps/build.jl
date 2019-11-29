@@ -113,7 +113,7 @@ if !check_grdir()
   mkpath("downloads")
   file = "downloads/$tarball"
   try
-    url = ENV["JULIA_PKG_SERVER"] * "/binary/gr/v0.44.90/$tarball"
+    url = ENV["JULIA_PKG_SERVER"] * "/binary/GR.jl/v0.44.90/$tarball"
     BinaryProvider.download(url,file)
   catch
     url = "gr-framework.org/downloads/$tarball"
