@@ -1,4 +1,4 @@
-using BinaryProvider
+using Pkg
 
 download_info = Dict(
     "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.44.90/gr-0.44.0-ArchLinux-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
@@ -113,8 +113,8 @@ if !check_grdir()
   mkpath("downloads")
   file = "downloads/$tarball"
   try
-    url = ENV["JULIA_PKG_SERVER"] * "/binary/GR.jl/v0.44.90/$tarball"
-    BinaryProvider.download(url,file)
+    url = Pkg.pkg_server() * "/binary/GR.jl/v0.44.90/$tarball"
+    Pkg.PlatformEngines.download(url,file)
   catch
     url = "gr-framework.org/downloads/$tarball"
     try
