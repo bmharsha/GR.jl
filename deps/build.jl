@@ -114,6 +114,7 @@ if !check_grdir()
   file = "downloads/$tarball"
   try
     url = Pkg.pkg_server() * "/binary/GR.jl/v0.44.90/$tarball"
+    Pkg.PlatformEngines.probe_platform_engines!()
     Pkg.PlatformEngines.download(url,file)
   catch
     url = "gr-framework.org/downloads/$tarball"
