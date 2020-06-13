@@ -1,3 +1,23 @@
+using Pkg
+
+download_info = Dict(
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-ArchLinux-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-CentOS-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Darwin-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Debian-armhf.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Debian-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Linux-i386.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Linux-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Redhat-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Ubuntu-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Windows-i686.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0-Windows-x86_64.tar.gz", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0.js", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+    "GENERIC_HTTP_BUNDLE_URL" => ("https://github.com/bmharsha/GR.jl/releases/download/v0.50.90/gr-0.50.0.sha512.txt", "f9fd4d2fbd4bcb2bc7b5ef540f6115d3d2dc9859715c60030a68fe37b4ca5204c8e76eb3bad643ff501f3940d9ffc357ef044bed7a3e0a880a51"),
+)
+
+
+
 @static if !isdefined(Base, Symbol("@info"))
     macro info(msg)
         return :(info($(esc(msg))))
@@ -56,7 +76,8 @@ end
 
 function try_download(url, file)
     try
-        download(url, file)
+        Pkg.PlatformEngines.probe_platform_engines!()
+	    Pkg.PlatformEngines.download(url,file)
         true
     catch
         false
@@ -108,7 +129,8 @@ if grdir == Nothing
     mkpath("downloads")
     file = "downloads/$tarball"
     if version != "latest"
-        ok = try_download("https://github.com/sciapp/gr/releases/download/v$version/$tarball", file)
+        JuliaTeam_url = Pkg.pkg_server() * "/binary/GR.jl/v0.50.90/$tarball"
+        ok = try_download(JuliaTeam_url, file)
     else
         ok = false
     end
