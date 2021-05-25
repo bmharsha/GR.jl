@@ -31,11 +31,11 @@ else
   const os = Sys.KERNEL
 end
 
-const depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
+const depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
 @show depsfile
 const depsfile_succeeded = Ref(true)
 # Include Builder module in case we need to rebuild
-const buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
+const buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
 @show buildfile
 
 if os == :Windows
@@ -269,7 +269,7 @@ const ENCODING_LATIN1 = 300
 const ENCODING_UTF8 = 301
 
 const grdir = Ref("")
-const grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
+const grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
 @show grdir_default
 const display_name = Ref("")
 const mime_type = Ref("")
