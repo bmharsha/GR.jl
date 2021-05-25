@@ -31,13 +31,6 @@ else
   const os = Sys.KERNEL
 end
 
-const depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
-@show depsfile
-const depsfile_succeeded = Ref(true)
-# Include Builder module in case we need to rebuild
-const buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
-@show buildfile
-
 if os == :Windows
     const libGR = "libGR.dll"
     const libGR3 = "libGR3.dll"
@@ -269,8 +262,6 @@ const ENCODING_LATIN1 = 300
 const ENCODING_UTF8 = 301
 
 const grdir = Ref("")
-const grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
-@show grdir_default
 const display_name = Ref("")
 const mime_type = Ref("")
 const file_path = Ref("")
@@ -294,6 +285,15 @@ function __init__()
        2. Set grdir[] global variable, defer to load_libs if gr_provider[] == "BinaryBuilder"
        3. If grdir[] cannot be set, try to rebuild.
     =#
+
+    const depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
+    @show depsfile
+    const depsfile_succeeded = Ref(true)
+    # Include Builder module in case we need to rebuild
+    const buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
+    @show buildfile
+    const grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
+    @show grdir_default
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
     contents = nothing
