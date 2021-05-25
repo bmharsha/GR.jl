@@ -31,6 +31,8 @@ else
   const os = Sys.KERNEL
 end
 
+const depsfile_succeeded = Ref(true)
+
 if os == :Windows
     const libGR = "libGR.dll"
     const libGR3 = "libGR3.dll"
@@ -286,13 +288,12 @@ function __init__()
        3. If grdir[] cannot be set, try to rebuild.
     =#
 
-    const depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
-    @show depsfile
-    const depsfile_succeeded = Ref(true)
+    depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
+    @show depsfile    
     # Include Builder module in case we need to rebuild
-    const buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
+    buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
     @show buildfile
-    const grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
+    grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
     @show grdir_default
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
