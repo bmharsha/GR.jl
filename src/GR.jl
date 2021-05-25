@@ -32,9 +32,11 @@ else
 end
 
 const depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
+@show depsfile
 const depsfile_succeeded = Ref(true)
 # Include Builder module in case we need to rebuild
 const buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
+@show buildfile
 
 if os == :Windows
     const libGR = "libGR.dll"
@@ -268,6 +270,7 @@ const ENCODING_UTF8 = 301
 
 const grdir = Ref("")
 const grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
+@show grdir_default
 const display_name = Ref("")
 const mime_type = Ref("")
 const file_path = Ref("")
