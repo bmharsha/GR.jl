@@ -73,7 +73,7 @@ function try_download(url, file)
     end
 end
 
-const depsfile = joinpath(@__DIR__, "deps.jl")
+const depsfile = normpath(joinpath(pathof(parentmodule(@__MODULE__)), "..", "..", "deps", "deps.jl")))
 
 function __init__()
     # Only build on module load if being included into Main
@@ -101,7 +101,7 @@ end
 function build()
 
 current_dir = pwd()
-cd(@__DIR__)
+cd(normpath(joinpath(pathof(parentmodule(@__MODULE__)), "..", "..", "deps")))
 
 try
 
