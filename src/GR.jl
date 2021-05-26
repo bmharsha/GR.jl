@@ -287,7 +287,8 @@ function __init__()
        2. Set grdir[] global variable, defer to load_libs if gr_provider[] == "BinaryBuilder"
        3. If grdir[] cannot be set, try to rebuild.
     =#
-
+    @show pathof(@__MODULE__)
+    @show @__MODULE__
     depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
     @show depsfile    
     # Include Builder module in case we need to rebuild
