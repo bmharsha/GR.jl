@@ -287,17 +287,17 @@ function __init__()
        2. Set grdir[] global variable, defer to load_libs if gr_provider[] == "BinaryBuilder"
        3. If grdir[] cannot be set, try to rebuild.
     =#
-    depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
+    depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
     # Include Builder module in case we need to rebuild
-    buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
-    grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
+    buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
+    grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
     contents = nothing
     # Initially depsfile_succeeded[] is true
     if depsfile_succeeded[]
         try
-            contents = isfile(depsfile) ? strip( read(depsfile, String) ) : ""
+            contents = isfile_nothrow(depsfile) ? strip( read(depsfile, String) ) : ""
         catch err
             depsfile_succeeded[] = false
             @debug "Parsing depsfile failed" depsfile contents err
@@ -325,7 +325,7 @@ function __init__()
     else
         grdir[] = ""
         for d in ("/opt", "/usr/local", "/usr")
-            if isdir(joinpath(d, "gr", "fonts"))
+            if isdir_nothrow(joinpath(d, "gr", "fonts"))
                 grdir[] = joinpath(d, "gr")
                 break
             end
@@ -334,7 +334,7 @@ function __init__()
 
     if grdir[] == "" || !depsfile_succeeded[]
         grdir[] = grdir_default 
-        if isdir(grdir[]) && gr_provider[] == "GR"
+        if isdir_nothrow(grdir[]) && gr_provider[] == "GR"
             # No need to rebuild, just use grdir_default as grdir
         else
             # Rebuild if no file at grdir_default or gr_provider[] == "BinaryBuilder"
@@ -473,6 +473,21 @@ function init(always::Bool = false)
         check_env[] = always
     end
 end
+
+function isdir_nothrow(path::String)
+    try isdir(path)
+    catch e
+        false
+    end
+end
+
+function isfile_nothrow(path::String)
+    try isfile(path)
+    catch e
+        false
+    end
+end
+
 
 function initgr()
   ccall( libGR_ptr(:gr_initgr),
