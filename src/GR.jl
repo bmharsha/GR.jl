@@ -287,15 +287,10 @@ function __init__()
        2. Set grdir[] global variable, defer to load_libs if gr_provider[] == "BinaryBuilder"
        3. If grdir[] cannot be set, try to rebuild.
     =#
-    @show pathof(@__MODULE__)
-    @show @__MODULE__
-    global depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
-    @show depsfile    
+    global depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
     # Include Builder module in case we need to rebuild
-    global buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
-    @show buildfile
-    global grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
-    @show grdir_default
+    global buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
+    global grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
     contents = nothing
