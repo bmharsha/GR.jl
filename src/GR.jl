@@ -289,12 +289,12 @@ function __init__()
     =#
     @show pathof(@__MODULE__)
     @show @__MODULE__
-    depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
+    global depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
     @show depsfile    
     # Include Builder module in case we need to rebuild
-    buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
+    global buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
     @show buildfile
-    grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
+    global grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
     @show grdir_default
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
