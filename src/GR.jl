@@ -288,12 +288,12 @@ function __init__()
        3. If grdir[] cannot be set, try to rebuild.
     =#
 
-    depsfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "deps.jl"))
+    depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
     @show depsfile    
     # Include Builder module in case we need to rebuild
-    buildfile = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "build.jl"))
+    buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
     @show buildfile
-    grdir_default = normpath(joinpath(Base.find_package("GR"), "..", "..", "deps", "gr"))
+    grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
     @show grdir_default
 
     # depsfile (deps/deps.jl) should contain some parseable Julia code
