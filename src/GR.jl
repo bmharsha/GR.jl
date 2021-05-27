@@ -31,7 +31,10 @@ else
   const os = Sys.KERNEL
 end
 
+const depsfile = joinpath(dirname(@__DIR__), "deps", "deps.jl")
 const depsfile_succeeded = Ref(true)
+# Include Builder module in case we need to rebuild
+const buildfile = joinpath(dirname(@__DIR__), "deps", "build.jl")
 
 if os == :Windows
     const libGR = "libGR.dll"
@@ -264,6 +267,7 @@ const ENCODING_LATIN1 = 300
 const ENCODING_UTF8 = 301
 
 const grdir = Ref("")
+const grdir_default = joinpath(dirname(@__FILE__), "..", "deps", "gr")
 const display_name = Ref("")
 const mime_type = Ref("")
 const file_path = Ref("")
@@ -287,29 +291,30 @@ function __init__()
        2. Set grdir[] global variable, defer to load_libs if gr_provider[] == "BinaryBuilder"
        3. If grdir[] cannot be set, try to rebuild.
     =#
-    depsfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "deps.jl"))
-    # Include Builder module in case we need to rebuild
-    buildfile = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "build.jl"))
-    grdir_default = normpath(joinpath(pathof(@__MODULE__), "..", "..", "deps", "gr"))
 
-    # depsfile (deps/deps.jl) should contain some parseable Julia code
-    contents = nothing
-    # Initially depsfile_succeeded[] is true
-    if depsfile_succeeded[]
-        try
-            contents = isfile_nothrow(depsfile) ? strip( read(depsfile, String) ) : ""
-        catch err
-            depsfile_succeeded[] = false
-            @debug "Parsing depsfile failed" depsfile contents err
+# If build.jl is not found, then GR is running as a SYSIMG, gr_provider is already set during SYSIMG creation
+    @show depsfile_succeeded
+    @show gr_provider
+    if isfile_nothrow(buildfile)    
+        # depsfile (deps/deps.jl) should contain some parseable Julia code
+        contents = nothing
+        # Initially depsfile_succeeded[] is true
+        if depsfile_succeeded[]
+            try
+                contents = isfile_nothrow(depsfile) ? strip( read(depsfile, String) ) : ""
+            catch err
+                depsfile_succeeded[] = false
+                @debug "Parsing depsfile failed" depsfile contents err
+            end
         end
-    end
 
-    # If the first line is either "import GR_jll" or "using GR_jll" then
-    # we are using the BinaryBuilder method
-    if contents == "import GR_jll" || contents == "using GR_jll"
-        gr_provider[] = "BinaryBuilder"
-    else
-        gr_provider[] = "GR"
+        # If the first line is either "import GR_jll" or "using GR_jll" then
+        # we are using the BinaryBuilder method
+        if contents == "import GR_jll" || contents == "using GR_jll"
+            gr_provider[] = "BinaryBuilder"
+        else
+            gr_provider[] = "GR"
+        end
     end
     @debug "GR Binaries:" GR.gr_provider[] GR.libGR GR.libGR3 GR.libGRM
 
