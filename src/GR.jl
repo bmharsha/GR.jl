@@ -312,9 +312,13 @@ function __init__()
         # we are using the BinaryBuilder method
         if contents == "import GR_jll" || contents == "using GR_jll"
             gr_provider[] = "BinaryBuilder"
+            SYSIMG_provider = "BinaryBuilder"
         else
             gr_provider[] = "GR"
-        end
+            SYSIMG_provider = "GR"
+        end    
+    else
+        gr_provider[] = SYSIMG_provider   
     end
     @debug "GR Binaries:" GR.gr_provider[] GR.libGR GR.libGR3 GR.libGRM
 
