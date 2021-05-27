@@ -292,7 +292,7 @@ function __init__()
        3. If grdir[] cannot be set, try to rebuild.
     =#
 
-# If build.jl is not found, then GR is running as a SYSIMG, gr_provider is already set during SYSIMG creation    
+# If build.jl is not found, then GR is running through a SYSIMG    
     if isfile_nothrow(buildfile)    
         # depsfile (deps/deps.jl) should contain some parseable Julia code
         contents = nothing
@@ -314,10 +314,9 @@ function __init__()
             gr_provider[] = "GR"
         end    
     else
+    # BinaryBuilder is the only GR provider that works when GR source code is not found after relocating the GR.jl SYSIMG
         gr_provider[] = "BinaryBuilder"   
     end
-    @show depsfile_succeeded
-    @show gr_provider
     @debug "GR Binaries:" GR.gr_provider[] GR.libGR GR.libGR3 GR.libGRM
 
     # Determine grdir
